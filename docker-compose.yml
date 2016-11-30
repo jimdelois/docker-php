@@ -1,0 +1,58 @@
+application:
+  build: .
+  volumes:
+    - ./:/app
+    - /Users/delois/Desktop/cachegrind:/tmp/cachegrind
+  environment:
+    # Overall Debug Configuration
+    XDEBUG_ENABLED: 1
+    BLACKFIRE_ENABLED: 1
+
+    # XDebug Configuration
+    XDEBUG_CONFIG: "idekey=idekey-xdebug" # Used to trigger XDebug for any CLI runs inside the container
+    XDEBUG_MAX_NESTING: 256 # (updated for Behat)
+    XDEBUG_REMOTE_AUTOSTART: 0
+    XDEBUG_REMOTE_HOST: 192.168.59.3
+    XDEBUG_REMOTE_CONNECT_BACK: 1
+    XDEBUG_PROFILE_DIR: /tmp/cachegrind
+    XDEBUG_PROFILE_FILENAME: application-%u-%R.cachegrind
+    XDEBUG_PROFILE_ALL: 0
+    XDEBUG_PROFILE_REQUEST: 1
+
+    # Blackfire Configuration
+    BLACKFIRE_SERVER_ID: BLACKFIRE_SERVER_ID
+    BLACKFIRE_SERVER_TOKEN: BLACKFIRE_SERVER_TOKEN
+    BLACKFIRE_LOG_LEVEL: 4
+    BLACKFIRE_AGENT_CONNECTION: tcp://blackfire:8707
+    BLACKFIRE_AGENT_TIMEOUT: 0.25
+
+    # Upstream Application Configurations
+    CFG_APP_ENVIRONMENT: dev
+    CFG_APP_DEBUG: 1
+    CFG_APP_CACHE: 1
+
+    # Server Configurations
+    SERVER_MAX_BODY_SIZE: 4M
+    SERVER_SENDFILE: "off"
+
+    FPM_HEADER_SIZE: 4M
+    FPM_BUFFER_COUNT: 16
+    FPM_BUFFER_SIZE: 1M
+
+    # Nginx Proxy
+    VIRTUAL_HOST: .subdomain.mydomain.com
+
+    # Application/Implementation Specific Configurations
+    # ... should go here
+
+  links:
+    - blackfire
+  ports:
+    - "8080"
+
+blackfire:
+  image: blackfire/blackfire
+  environment:
+    BLACKFIRE_SERVER_ID: BLACKFIRE_SERVER_ID
+    BLACKFIRE_SERVER_TOKEN: BLACKFIRE_SERVER_TOKEN
+    BLACKFIRE_LOG_LEVEL: 4
